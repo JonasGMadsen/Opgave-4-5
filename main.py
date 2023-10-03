@@ -36,3 +36,4 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
     while True:
         connectionSocket, client_address = serverSocket.accept()
         executor.submit(handle_client, connectionSocket, client_address)
+
