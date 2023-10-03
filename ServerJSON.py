@@ -8,33 +8,27 @@ import random
 
 def handle_client(connectionSocket, client_address):
     print('Connection established with', client_address)
-    data = connectionSocket.recv(1024).decode()
-    request = json.loads(data)
+    request_data = connectionSocket.recv(1024).decode()
+    request = json.loads(request_data)
 
     operation = request.get("operation")
-    response = {}
+    numbers = request.get("numbers", [])
 
     if operation == "Random":
-        min_num = request.get("min")
-        max_num = request.get("max")
+        min_num, max_num = map(int, numbers)
         result = random.randint(min_num, max_num)
-        response["result"] = result
     elif operation == "Add":
-        num1 = request.get("num1")
-        num2 = request.get("num2")
+        num1, num2 = map(int, numbers)
         result = num1 + num2
-        response["result"] = result
     elif operation == "Subtract":
-        num1 = request.get("num1")
-        num2 = request.get("num2")
+        num1, num2 = map(int, numbers)
         result = num1 - num2
-        response["result"] = result
     else:
-        response["error"] = "Invalid operation"
+        result = "Invalid operation or numbers"
 
+    response = {"result": result}
     connectionSocket.sendall(json.dumps(response).encode())
     connectionSocket.close()
-
 
 serverPort = 12000
 serverSocket = socket(AF_INET, SOCK_STREAM)

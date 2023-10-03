@@ -1,36 +1,34 @@
-import json
 from socket import *
+import json
 
 serverName = 'localhost'
 serverPort = 12000
-
 clientSocket = socket(AF_INET, SOCK_STREAM)
 clientSocket.connect((serverName, serverPort))
 
-operation = input("Enter operation (Random/Add/Subtract): ")
+operation = input("Enter operation (Random/Add/Subtract): ").strip()
 
-request = {"operation": operation}
-
+request = {}
 if operation == "Random":
-    min_num, max_num = map(int, input("Enter minimum and maximum numbers separated by space: ").split())
-    request["min"] = min_num
-    request["max"] = max_num
+    min_num = int(input("Enter the minimum number: "))
+    max_num = int(input("Enter the maximum number: "))
+    request["operation"] = operation
+    request["numbers"] = [min_num, max_num]
 elif operation in ["Add", "Subtract"]:
-    num1, num2 = map(int, input("Enter two numbers separated by space: ").split())
-    request["num1"] = num1
-    request["num2"] = num2
+    num1 = int(input("Enter the first number: "))
+    num2 = int(input("Enter the second number: "))
+    request["operation"] = operation
+    request["numbers"] = [num1, num2]
 else:
     print("Invalid operation")
     clientSocket.close()
     exit()
 
 clientSocket.sendall(json.dumps(request).encode())
+
 response_data = clientSocket.recv(1024).decode()
 response = json.loads(response_data)
-
-if "error" in response:
-    print("Error:", response["error"])
-else:
-    print("Result from server:", response["result"])
+result = response.get("result", "Invalid response")
+print(f"Result: {result}")
 
 clientSocket.close()
